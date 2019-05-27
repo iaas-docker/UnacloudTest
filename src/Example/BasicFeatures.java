@@ -51,7 +51,7 @@ public class BasicFeatures {
         Socket socket = null;
         System.out.println("Creating SSH socket ");
         String address = sc.next();
-        System.out.println("Address "+address);
+        System.out.println("Input Address "+address);
         boolean reaching = false;
 
         while(!reaching) {
@@ -71,7 +71,9 @@ public class BasicFeatures {
             }
 
             System.out.println("state: " + reaching);
-            System.out.println(System.currentTimeMillis() - initial);
+            if (reaching) {
+                System.out.println(System.currentTimeMillis() - initial);
+            }
         }
 
     }
