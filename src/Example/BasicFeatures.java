@@ -7,9 +7,7 @@ import VO.*;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Class for showcasing a simple deployment example.
@@ -38,43 +36,42 @@ public class BasicFeatures {
         double deploymentId=basicFeatures.generateSimpleDeployment();
         //Get response from server
         DeploymentResponse deploymentResponse=basicFeatures.getDeploymentResponse((int)deploymentId);
-        //Check if executions have finished successfully
-//        if(!basicFeatures.finishExecutions(deploymentResponse))
-//            throw new Exception("There are failed executions");
-//        //Stop the executions of the given deployment
-//        basicFeatures.stopDeployment((int)deploymentId,deploymentResponse);
-//        //Check that every machine of the deployment does not have any executions on going
-//        basicFeatures.finishDeployment(deploymentResponse);
-        //Wait before next deployment
-//        Thread.sleep(30000);
+
         Scanner sc = new Scanner(System.in);
         Socket socket = null;
         System.out.println("Creating SSH socket ");
         String address = sc.next();
-        System.out.println("Input Address "+address);
-        boolean reaching = false;
+        System.out.println("Input Addresses "+address);
+        String [] addresses = address.split(",");
+        Boolean [] reachingList = new Boolean[addresses.length];
+        for (int i = 0; i < reachingList.length; i++) {
+            reachingList[i] = false;
+        }
 
-        while(!reaching) {
-
+        while(!(Arrays.asList(reachingList).stream().allMatch(val -> val == true) ) ) {
+//            int r
+            int i = 0;
+            for (int j = 0; j < reachingList.length; j++) {
+                if (reachingList[j] == false){
+                    i = j;
+                    break;
+                }
+            }
             try {
-                socket = new Socket(address, 22);
-                reaching = true;
+                socket = new Socket(addresses[i], 22);
+                reachingList[i] = true;
             } catch (Exception e) {
-                reaching = false;
+                reachingList[i] = false;
             } finally {
                 if (socket != null) {
                     try {
                         socket.close();
-                    } catch (IOException e) {
-                    }
+                    } catch (IOException e) { }
                 }
             }
 
-            System.out.println("state: " + reaching);
-            if (reaching) {
-                System.out.println(System.currentTimeMillis() - initial);
-            }
         }
+        System.out.println(System.currentTimeMillis() - initial);
 
     }
 
@@ -102,7 +99,7 @@ public class BasicFeatures {
         DeploymentManager dep= new DeploymentManager(uc);
         //Post deployment with params
         DeploymentRequest deploymentRequest=new DeploymentRequest(10,214);
-        deploymentRequest.addNode(267,DeploymentManager.HW_SMALL,1,"t3",false);
+        deploymentRequest.addNode(267,DeploymentManager.HW_SMALL,5,"t3",false);
         return (dep.deployWithParams(deploymentRequest));
 
     }
